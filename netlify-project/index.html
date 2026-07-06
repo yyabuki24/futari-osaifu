@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ふたりのおさいふ</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#2E2B26">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="おさいふ">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F3EC;
+    --ink:#2E2B26;
+    --ink-soft:#8A8374;
+    --line:#E6DFD0;
+    --card:#FFFFFF;
+    --personA:#D6483A;
+    --personA-soft:#F6D9D2;
+    --personB:#2F6FA8;
+    --personB-soft:#D8E6F1;
+    --plus:#3B7A57;
+    --plus-soft:#DCEBE0;
+    --radius:18px;
+    --shadow:0 2px 14px rgba(46,43,38,0.07), 0 1px 3px rgba(46,43,38,0.06);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0; overscroll-behavior-y:none;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    min-height:100vh;
+    min-height:100dvh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{font-family:'Zen Maru Gothic', sans-serif;}
+  .num{font-variant-numeric:tabular-nums; font-feature-settings:"tnum";}
+
+  .app{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    min-height:100dvh;
+    background:var(--bg);
+    position:relative;
+    padding-bottom:96px;
+  }
+
+  /* Header */
+  .header{
+    position:sticky; top:0; z-index:20;
+    background:var(--bg);
+    padding:20px 18px 12px;
+    box-shadow:0 6px 10px -6px rgba(46,43,38,0.12);
+    transform:translateZ(0);
+    -webkit-transform:translateZ(0);
+    will-change:transform;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+  }
+  .header-row{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .brand{display:flex; align-items:center; gap:8px;}
+  .brand-icon{width:30px;height:30px; flex-shrink:0;}
+  .brand-title{font-family:'Zen Maru Gothic', sans-serif; font-weight:900; font-size:19px; letter-spacing:.02em;}
+  .me-pill{
+    display:flex; align-items:center; gap:6px;
+    background:var(--card); border:1px solid var(--line);
+    border-radius:999px; padding:6px 12px 6px 8px;
+    font-size:13px; font-weight:700; color:var(--ink-soft);
+    cursor:pointer; box-shadow:var(--shadow);
+  }
+  .me-pill .dot{width:9px;height:9px;border-radius:50%;}
+  .me-pill b{color:var(--ink);}
+  .settings-btn{
+    width:38px;height:38px;border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--card); border:1px solid var(--line);
+    box-shadow:var(--shadow); cursor:pointer; flex-shrink:0;
+  }
+
+  /* Wallet hero card */
+  .wallet-card{
+    margin:14px 18px 0;
+    background:var(--ink);
+    color:#fff;
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:18px 18px;
+  }
+  .wallet-top{display:flex; align-items:center; justify-content:space-between;}
+  .wallet-label{font-size:12px; color:rgba(255,255,255,0.65); font-weight:700; letter-spacing:.04em;}
+  .wallet-amount{font-family:'Zen Maru Gothic',sans-serif; font-weight:900; font-size:30px; margin-top:4px;}
+  .wallet-deposit-btn{
+    background:rgba(255,255,255,0.14); color:#fff; border:1px solid rgba(255,255,255,0.25);
+    border-radius:12px; padding:9px 13px; font-size:12.5px; font-weight:700; cursor:pointer;
+    white-space:nowrap;
+  }
+  .wallet-sub{
+    display:flex; gap:16px; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.14);
+    font-size:12px; color:rgba(255,255,255,0.75);
+  }
+  .wallet-sub b{color:#fff; font-weight:700;}
+
+  .cash-chips{display:flex; gap:10px; margin:10px 18px 0;}
+  .cash-chip{
+    flex:1; display:flex; align-items:center; gap:8px;
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:10px 12px; box-shadow:var(--shadow); cursor:pointer;
+  }
+  .cash-chip .dot{width:9px;height:9px;border-radius:50%; flex-shrink:0;}
+  .cash-chip-info{flex:1; min-width:0;}
+  .cash-chip-name{font-size:11px; color:var(--ink-soft); font-weight:700;}
+  .cash-chip-amt{font-size:15px; font-weight:900; font-family:'Zen Maru Gothic',sans-serif;}
+  .cash-chip-edit{font-size:11px; color:var(--ink-soft); font-weight:700; flex-shrink:0;}
+
+  .ledger-box{margin-top:14px; padding-top:14px; border-top:1px dashed var(--line);}
+  .ledger-row{display:flex; justify-content:space-between; padding:4px 2px; font-size:13.5px; color:var(--ink-soft);}
+  .ledger-row b{color:var(--ink); font-weight:700;}
+  .ledger-row b.plus{color:var(--plus);}
+  .ledger-row b.minus{color:var(--personA);}
+  .ledger-row.total{margin-top:4px; padding-top:8px; border-top:1px solid var(--line); font-weight:700;}
+  .ledger-row.total span{color:var(--ink); font-weight:700;}
+  .ledger-row.total b{font-size:16px; font-family:'Zen Maru Gothic',sans-serif;}
+
+  /* View tabs */
+  .view-tabs{
+    display:flex; gap:8px; margin:14px 18px 0;
+  }
+  .view-tab{
+    flex:1; text-align:center; padding:9px; border-radius:12px;
+    font-size:13px; font-weight:700; cursor:pointer;
+    background:var(--card); border:1px solid var(--line); color:var(--ink-soft);
+  }
+  .view-tab.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+
+  /* Month nav */
+  .month-nav{
+    display:flex; align-items:center; justify-content:center; gap:18px;
+    margin:14px 0 4px;
+  }
+  .month-nav button{
+    width:34px;height:34px;border-radius:50%;border:1px solid var(--line);
+    background:var(--card); cursor:pointer; display:flex; align-items:center;justify-content:center;
+    box-shadow:var(--shadow); color:var(--ink);
+  }
+  .month-nav button:disabled{opacity:.3; cursor:default;}
+  .month-label{font-family:'Zen Maru Gothic',sans-serif; font-weight:700; font-size:17px; min-width:120px; text-align:center;}
+
+  /* Balance card (signature element) */
+  .balance-card{
+    margin:14px 18px 0;
+    background:var(--card);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:18px 18px 16px;
+  }
+  .balance-title{font-size:12px; color:var(--ink-soft); font-weight:700; letter-spacing:.04em; margin-bottom:10px;}
+  .bar-track{
+    height:14px; border-radius:999px; background:var(--line); overflow:hidden;
+    display:flex; width:100%;
+  }
+  .bar-seg{height:100%; transition:width .4s ease;}
+  .bar-legend{display:flex; justify-content:space-between; margin-top:10px;}
+  .legend-item{display:flex; flex-direction:column; gap:2px;}
+  .legend-item.right{align-items:flex-end;}
+  .legend-name{display:flex; align-items:center; gap:6px; font-size:13px; font-weight:700;}
+  .legend-name .dot{width:9px;height:9px;border-radius:50%;}
+  .legend-amt{font-size:18px; font-weight:900; font-family:'Zen Maru Gothic',sans-serif;}
+  .settle-line{
+    margin-top:14px; padding-top:14px; border-top:1px dashed var(--line);
+    text-align:center; font-size:14px; color:var(--ink-soft); line-height:1.6;
+  }
+  .settle-line b{color:var(--ink); font-weight:900;}
+  .settle-line .arrow{margin:0 4px; color:var(--ink-soft);}
+
+  /* Transaction list */
+  .list-section{margin:22px 18px 0;}
+  .list-section-title{font-size:12px; color:var(--ink-soft); font-weight:700; letter-spacing:.04em; margin:0 2px 8px;}
+  .day-group{margin-bottom:14px;}
+  .day-label{font-size:12px; color:var(--ink-soft); font-weight:700; margin:0 2px 6px;}
+  .tx-card{
+    background:var(--card); border-radius:14px; box-shadow:var(--shadow);
+    padding:13px 14px; display:flex; align-items:center; gap:12px;
+    margin-bottom:8px; cursor:pointer;
+  }
+  .tx-tag{
+    width:8px; height:36px; border-radius:6px; flex-shrink:0;
+  }
+  .tx-main{flex:1; min-width:0;}
+  .tx-content{font-size:14.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:6px;}
+  .tx-badge{
+    font-size:10px; font-weight:700; padding:2px 6px; border-radius:6px;
+    background:var(--plus-soft); color:var(--plus); flex-shrink:0;
+  }
+  .tx-payer{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+  .tx-amount{font-size:16px; font-weight:900; font-family:'Zen Maru Gothic',sans-serif; flex-shrink:0;}
+  .tx-amount.is-deposit{color:var(--plus);}
+
+  .empty-state{
+    text-align:center; padding:50px 20px; color:var(--ink-soft);
+  }
+  .empty-state .em-icon{font-size:34px; margin-bottom:10px;}
+  .empty-state p{font-size:14px; line-height:1.7; margin:0;}
+
+  /* Past years */
+  .year-card{
+    background:var(--card); border-radius:16px; box-shadow:var(--shadow);
+    padding:16px 16px; margin-bottom:10px;
+  }
+  .year-card-top{display:flex; align-items:baseline; justify-content:space-between;}
+  .year-card-title{font-family:'Zen Maru Gothic',sans-serif; font-weight:700; font-size:16px;}
+  .year-card-total{font-weight:900; font-size:17px; font-family:'Zen Maru Gothic',sans-serif;}
+  .year-card-legend{display:flex; gap:16px; margin-top:8px;}
+  .year-card-legend div{font-size:12.5px; color:var(--ink-soft); display:flex; align-items:center; gap:5px;}
+  .year-card-legend .dot{width:8px;height:8px;border-radius:50%;}
+  .year-months{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);}
+  .month-row{display:flex; justify-content:space-between; padding:5px 2px; font-size:13px;}
+  .month-row-label{font-weight:700; color:var(--ink-soft);}
+  .month-row-amt{font-weight:700; color:var(--ink);}
+  .year-toggle-hint{margin-top:10px; text-align:center; font-size:12px; color:var(--ink-soft); cursor:pointer; font-weight:700;}
+  .year-card-legend b{color:var(--ink); font-weight:700;}
+
+  /* FAB */
+  .fab{
+    position:fixed; bottom:22px; z-index:30;
+    right:max(18px, calc((100% - 480px)/2 + 18px));
+    transform:translateZ(0);
+    -webkit-transform:translateZ(0);
+    will-change:transform;
+  }
+  .fab button{
+    width:58px;height:58px;border-radius:50%;
+    background:var(--ink); color:#fff; border:none;
+    box-shadow:0 6px 18px rgba(46,43,38,0.3);
+    font-size:28px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+
+  /* Modal */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(46,43,38,0.4);
+    display:none; align-items:flex-end; justify-content:center; z-index:50;
+  }
+  .modal-backdrop.show{display:flex;}
+  .modal-sheet{
+    background:var(--bg); width:100%; max-width:480px;
+    border-radius:24px 24px 0 0; padding:22px 20px 28px;
+    box-shadow:0 -8px 30px rgba(0,0,0,0.15);
+    max-height:88vh; overflow-y:auto;
+    animation:slideUp .25s ease;
+  }
+  @keyframes slideUp{from{transform:translateY(30px); opacity:0;} to{transform:translateY(0); opacity:1;}}
+  .modal-handle{width:40px;height:4px;background:var(--line); border-radius:4px; margin:0 auto 18px;}
+  .modal-title{font-family:'Zen Maru Gothic',sans-serif; font-weight:700; font-size:17px; margin-bottom:18px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:6px;}
+  .field input[type=text], .field input[type=date], .field input[type=number]{
+    width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line);
+    background:var(--card); font-size:15px; font-family:inherit; color:var(--ink);
+  }
+  .field textarea{
+    width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line);
+    background:var(--card); font-size:13px; font-family:monospace; color:var(--ink);
+    min-height:110px; resize:vertical;
+  }
+  .field input:focus, .field textarea:focus{outline:2px solid var(--ink); outline-offset:1px;}
+  .field-hint{font-size:11px; color:var(--ink-soft); margin-top:5px; line-height:1.6;}
+  .type-toggle{display:flex; gap:8px;}
+  .type-opt{
+    flex:1; padding:11px; border-radius:12px; border:1.5px solid var(--line);
+    background:var(--card); text-align:center; font-weight:700; font-size:14px; cursor:pointer;
+  }
+  .type-opt.active.expense{border-color:var(--personA); background:var(--personA-soft); color:var(--personA);}
+  .type-opt.active.deposit{border-color:var(--plus); background:var(--plus-soft); color:var(--plus);}
+  .payer-toggle{display:flex; gap:8px;}
+  .payer-opt{
+    flex:1; padding:12px; border-radius:12px; border:1.5px solid var(--line);
+    background:var(--card); text-align:center; font-weight:700; font-size:14px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .payer-opt .dot{width:9px;height:9px;border-radius:50%;}
+  .payer-opt.active{border-color:var(--ink); background:var(--ink); color:#fff;}
+  .modal-actions{display:flex; gap:10px; margin-top:20px;}
+  .btn{
+    flex:1; padding:14px; border-radius:14px; border:none; font-weight:700; font-size:15px;
+    cursor:pointer; font-family:inherit;
+  }
+  .btn-primary{background:var(--ink); color:#fff;}
+  .btn-danger{background:#fff; color:#B23B2E; border:1.5px solid #E9C9C2;}
+  .btn-ghost{background:#fff; color:var(--ink-soft); border:1.5px solid var(--line);}
+
+  .names-field{display:flex; gap:10px;}
+  .names-field .field{flex:1;}
+
+  .settings-section{margin-top:6px; padding-top:18px; border-top:1px dashed var(--line);}
+  .settings-section-title{font-size:13px; font-weight:700; margin-bottom:10px;}
+
+  .toast{
+    position:fixed; bottom:100px; left:50%; transform:translateX(-50%);
+    background:var(--ink); color:#fff; padding:10px 18px; border-radius:999px;
+    font-size:13px; font-weight:700; z-index:60; opacity:0; pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease; max-width:80vw; text-align:center;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(-6px);}
+
+  .loading-screen{
+    display:flex; align-items:center; justify-content:center; min-height:100vh;
+    flex-direction:column; gap:10px; color:var(--ink-soft); font-size:13px;
+  }
+
+  .who-grid{display:flex; flex-direction:column; gap:12px; margin-top:6px;}
+  .who-card{
+    display:flex; align-items:center; gap:12px; padding:16px;
+    border-radius:16px; border:1.5px solid var(--line); background:var(--card);
+    cursor:pointer; font-size:16px; font-weight:700;
+  }
+  .who-card .dot{width:14px;height:14px;border-radius:50%;}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="loading-screen" id="loadingScreen">読み込み中…</div>
+</div>
+
+<div class="modal-backdrop" id="txModalBackdrop">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="txModalTitle">記録を追加</div>
+    <div class="field">
+      <label>種類</label>
+      <div class="type-toggle" id="typeToggle">
+        <div class="type-opt expense" data-type="expense">支出</div>
+        <div class="type-opt deposit" data-type="deposit">入金</div>
+      </div>
+    </div>
+    <div class="field">
+      <label id="contentLabel">内容</label>
+      <input type="text" id="txContent" placeholder="例）スーパーで食材" maxlength="60">
+    </div>
+    <div class="field">
+      <label>金額</label>
+      <input type="number" id="txAmount" placeholder="0" inputmode="numeric" min="0">
+    </div>
+    <div class="field">
+      <label>日付</label>
+      <input type="date" id="txDate">
+    </div>
+    <div class="field">
+      <label id="payerLabel">支払った人</label>
+      <div class="payer-toggle" id="payerToggle"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="txCancelBtn">キャンセル</button>
+      <button class="btn btn-primary" id="txSaveBtn">保存する</button>
+    </div>
+    <div class="modal-actions" id="txDeleteRow" style="display:none;">
+      <button class="btn btn-danger" id="txDeleteBtn">この記録を削除</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="settingsModalBackdrop">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">設定</div>
+    <div class="field">
+      <label>2人の名前</label>
+      <div class="names-field">
+        <input type="text" id="nameA" maxlength="10">
+        <input type="text" id="nameB" maxlength="10">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="settingsCancelBtn">閉じる</button>
+      <button class="btn btn-primary" id="settingsSaveBtn">保存する</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">財布の台帳設定</div>
+      <div class="field">
+        <label>起点となる月の開始残高</label>
+        <input type="number" id="walletBaseline" inputmode="numeric">
+        <div class="field-hint">2026年1月1日時点の残高として使われます。</div>
+      </div>
+      <div class="field">
+        <label>毎月月初めに自動で入る金額</label>
+        <input type="number" id="walletTopup" inputmode="numeric">
+      </div>
+      <button class="btn btn-primary" id="walletSettingsSaveBtn" style="width:100%;">台帳設定を保存する</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">データのバックアップ</div>
+      <div class="field-hint" style="margin-bottom:10px;">今までの記録を全件CSVでダウンロードできます。念のため、たまにバックアップしておくと安心です。</div>
+      <button class="btn btn-primary" id="exportBtn" style="width:100%;">CSVでダウンロードする</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">過去データを一括インポート</div>
+      <div class="field">
+        <textarea id="importText" placeholder="2026-04-01,スーパーで食材,3200,ゆづ&#10;2026-04-03,電気代,8800,ゆうや"></textarea>
+        <div class="field-hint">1行に1件、「日付,内容,金額,支払った人」の順でカンマ区切り。Googleスプレッドシートの履歴タブをCSVでダウンロードし、中身をそのまま貼り付けてもOKです（1行目が見出しでも自動で無視します）。</div>
+      </div>
+      <button class="btn btn-primary" id="importBtn" style="width:100%;">この内容を取り込む</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="whoModalBackdrop">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">あなたはどちら？</div>
+    <div class="who-grid" id="whoGrid"></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="cashModalBackdrop">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="cashModalTitle">手持ち残高</div>
+    <div class="field">
+      <label>現在の手持ち金額</label>
+      <input type="number" id="cashAmount" placeholder="0" inputmode="numeric" min="0">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cashCancelBtn">キャンセル</button>
+      <button class="btn btn-primary" id="cashSaveBtn">保存する</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const FALLBACK_NAMES = ["わたし","あなた"];
+  const SEED_NAMES = ["ゆづ","ゆうや"];
+  const WALLET_DEFAULTS = {
+    walletBaselineDate: "2026-01-01",
+    walletBaselineAmount: 97761,
+    walletMonthlyTopup: 40000,
+    personalCash: { "ゆづ": 26200, "ゆうや": 81000 }
+  };
+  const SEED_TRANSACTIONS_JULY1 = [
+    {"id":"seed_j1_0001","date":"2026-07-02","content":"マック","amount":1870,"payer":"ゆうや","type":"expense"},
+    {"id":"seed_j1_0002","date":"2026-07-03","content":"ころ九","amount":3600,"payer":"ゆうや","type":"expense"},
+    {"id":"seed_j1_0003","date":"2026-07-03","content":"カフェ","amount":3300,"payer":"ゆづ","type":"expense"},
+    {"id":"seed_j1_0004","date":"2026-07-03","content":"チュッパチャプス","amount":200,"payer":"ゆうや","type":"expense"},
+    {"id":"seed_j1_0005","date":"2026-07-03","content":"温野菜","amount":8486,"payer":"ゆうや","type":"expense"}
+  ];
+  const SEED_TRANSACTIONS = [{"id": "seed_0000", "date": "2025-06-06", "content": "ﾗｰﾒﾝ", "amount": 2680, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0001", "date": "2025-06-06", "content": "ｾﾌﾞﾝ", "amount": 861, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0002", "date": "2025-06-07", "content": "ｾﾌﾞﾝ", "amount": 719, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0003", "date": "2025-06-07", "content": "ｼﾞｪﾗｰﾄ", "amount": 650, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0004", "date": "2025-06-13", "content": "ｾﾌﾞﾝ", "amount": 883, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0005", "date": "2025-06-13", "content": "ﾃﾞｨｽﾞﾆｰ", "amount": 31070, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0006", "date": "2025-06-13", "content": "ﾃﾞｨｽﾞﾆｰ", "amount": 5680, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0007", "date": "2025-06-14", "content": "八十郎", "amount": 3366, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0008", "date": "2025-06-14", "content": "まちおか", "amount": 1463, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0009", "date": "2025-06-14", "content": "ｺﾞﾝﾁｬ", "amount": 1110, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0010", "date": "2025-06-15", "content": "マック", "amount": 2220, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0011", "date": "2025-06-15", "content": "松屋", "amount": 1600, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0012", "date": "2025-06-27", "content": "ドーム", "amount": 4000, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0013", "date": "2025-06-27", "content": "ドーム", "amount": 2050, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0014", "date": "2025-07-11", "content": "ブロンコビリー", "amount": 3124, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0015", "date": "2025-07-11", "content": "ごんちゃ", "amount": 1060, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0016", "date": "2025-07-11", "content": "ほてる", "amount": 6950, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0017", "date": "2025-07-12", "content": "定食", "amount": 1991, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0018", "date": "2025-07-12", "content": "ラーメン", "amount": 2430, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0019", "date": "2025-07-18", "content": "まっく", "amount": 2010, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0020", "date": "2025-07-18", "content": "丸亀", "amount": 1360, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0021", "date": "2025-07-18", "content": "かき氷", "amount": 4600, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0022", "date": "2025-07-18", "content": "タリーズ", "amount": 970, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0023", "date": "2025-07-18", "content": "ポキボウル", "amount": 1250, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0024", "date": "2025-07-19", "content": "居酒屋", "amount": 4672, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0025", "date": "2025-07-20", "content": "ラーメン", "amount": 2640, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0026", "date": "2025-07-21", "content": "やよい軒", "amount": 1830, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0027", "date": "2025-07-21", "content": "らいくん誕生日", "amount": 8377, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0028", "date": "2025-08-17", "content": "駐車場代", "amount": 2000, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0029", "date": "2025-08-17", "content": "高梨カレー等", "amount": 2480, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0030", "date": "2025-08-17", "content": "ミスド", "amount": 1830, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0031", "date": "2025-08-17", "content": "食料", "amount": 1188, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0032", "date": "2025-08-26", "content": "映画　MER", "amount": 4000, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0033", "date": "2025-08-28", "content": "そば", "amount": 2420, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0034", "date": "2025-08-28", "content": "ポップコーンとか", "amount": 1840, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0035", "date": "2025-09-04", "content": "マック", "amount": 1930, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0036", "date": "2025-09-05", "content": "セイムス", "amount": 433, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0037", "date": "2025-09-05", "content": "駅弁", "amount": 2703, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0038", "date": "2025-09-05", "content": "スタバ", "amount": 1616, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0039", "date": "2025-09-05", "content": "東山動物園", "amount": 1000, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0040", "date": "2025-09-05", "content": "アイス", "amount": 880, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0041", "date": "2025-09-05", "content": "ドトール", "amount": 830, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0042", "date": "2025-09-06", "content": "らむちぃ", "amount": 3360, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0043", "date": "2025-09-07", "content": "みちしるべ", "amount": 11600, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0044", "date": "2025-09-07", "content": "焼き鳥のやつ", "amount": 2000, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0045", "date": "2025-09-07", "content": "丼もの", "amount": 2450, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0046", "date": "2025-09-07", "content": "ホテル", "amount": 18259, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0047", "date": "2025-09-07", "content": "ドトール", "amount": 1100, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0048", "date": "2025-09-07", "content": "蓬莱軒", "amount": 11000, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0049", "date": "2025-09-07", "content": "野球", "amount": 6370, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0050", "date": "2025-09-08", "content": "新幹線", "amount": 44000, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0051", "date": "2025-09-09", "content": "スーパー", "amount": 2624, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0052", "date": "2025-09-10", "content": "セイムス", "amount": 777, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0053", "date": "2025-10-10", "content": "牛丼", "amount": 1920, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0054", "date": "2025-10-10", "content": "ラーメン", "amount": 1592, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0055", "date": "2025-10-11", "content": "アサイー", "amount": 2600, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0056", "date": "2025-10-11", "content": "コナズ珈琲", "amount": 3278, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0057", "date": "2025-10-23", "content": "マック", "amount": 1950, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0058", "date": "2025-10-24", "content": "鳥貴族", "amount": 6240, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0059", "date": "2025-10-25", "content": "セブン", "amount": 1318, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0060", "date": "2025-10-30", "content": "やよい軒", "amount": 2480, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0061", "date": "2025-11-13", "content": "はま寿司", "amount": 3366, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0062", "date": "2025-11-14", "content": "うどん", "amount": 2300, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0063", "date": "2025-11-14", "content": "おさ湯", "amount": 1400, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0064", "date": "2025-11-14", "content": "プリン", "amount": 1000, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0065", "date": "2025-11-14", "content": "釜飯", "amount": 3938, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0066", "date": "2025-11-15", "content": "ゆもみ", "amount": 1300, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0067", "date": "2025-11-15", "content": "温泉卵", "amount": 400, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0068", "date": "2025-11-23", "content": "ボウリング", "amount": 3800, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0069", "date": "2025-11-23", "content": "ケバブ", "amount": 1600, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0070", "date": "2025-11-23", "content": "パスタ", "amount": 2400, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0071", "date": "2025-12-12", "content": "赤から", "amount": 6952, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0072", "date": "2025-12-12", "content": "映画", "amount": 3000, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0073", "date": "2025-12-12", "content": "ポップコーン", "amount": 1780, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0074", "date": "2025-12-12", "content": "マック", "amount": 2020, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0075", "date": "2025-12-18", "content": "映画", "amount": 3600, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0076", "date": "2025-12-19", "content": "ご飯", "amount": 3309, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0077", "date": "2025-12-20", "content": "ポップコーン等", "amount": 1660, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0078", "date": "2025-12-20", "content": "かつや", "amount": 2148, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0079", "date": "2026-02-06", "content": "ブロンコビリー", "amount": 3056, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0080", "date": "2026-02-06", "content": "マック", "amount": 1950, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0081", "date": "2026-02-07", "content": "スマイルスマイル", "amount": 3861, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0082", "date": "2026-02-19", "content": "セブン", "amount": 2229, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0083", "date": "2026-02-20", "content": "韓国料理", "amount": 9000, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0084", "date": "2026-02-20", "content": "たい焼き", "amount": 510, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0085", "date": "2026-02-21", "content": "映画", "amount": 4000, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0086", "date": "2026-02-22", "content": "セブン", "amount": 1113, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0087", "date": "2026-03-12", "content": "マック", "amount": 1750, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0088", "date": "2026-03-13", "content": "定食", "amount": 3600, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0089", "date": "2026-03-14", "content": "GIANTSサワー", "amount": 1800, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0090", "date": "2026-03-27", "content": "セブン", "amount": 2718, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0091", "date": "2026-03-27", "content": "松屋", "amount": 1440, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0092", "date": "2026-03-27", "content": "", "amount": 1481, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0093", "date": "2026-03-28", "content": "うおべい", "amount": 3971, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0094", "date": "2026-04-03", "content": "やど", "amount": 5900, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0095", "date": "2026-04-03", "content": "ドーム", "amount": 6370, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0096", "date": "2026-04-10", "content": "ドーム", "amount": 850, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0097", "date": "2026-04-10", "content": "ドーム", "amount": 1500, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0098", "date": "2026-04-11", "content": "ご飯", "amount": 3128, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0099", "date": "2026-04-24", "content": "かいちゃんのプレゼント", "amount": 2889, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0100", "date": "2026-04-24", "content": "しゃぶ葉", "amount": 3936, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0101", "date": "2026-04-24", "content": "ミスド", "amount": 851, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0102", "date": "2026-04-24", "content": "ゴンチャ", "amount": 830, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0103", "date": "2026-04-25", "content": "りんご飴", "amount": 580, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0104", "date": "2026-05-03", "content": "風呂", "amount": 2200, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0105", "date": "2026-05-04", "content": "SA", "amount": 1730, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0106", "date": "2026-05-04", "content": "牛タン", "amount": 6754, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0107", "date": "2026-05-04", "content": "お風呂", "amount": 3640, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0108", "date": "2026-05-05", "content": "仙台・山形の高速代とガソリン代", "amount": 12800, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0109", "date": "2026-05-09", "content": "まいちゃんのポテト", "amount": 2810, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0110", "date": "2026-05-09", "content": "すぐるのコーヒー", "amount": 1790, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0111", "date": "2026-05-09", "content": "サイゼ", "amount": 2300, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0112", "date": "2026-05-09", "content": "ゴンチャ", "amount": 490, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0113", "date": "2026-05-09", "content": "ゆづまま母の日", "amount": 1621, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0114", "date": "2026-05-21", "content": "マック", "amount": 2550, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0115", "date": "2026-05-21", "content": "チケット(野球)", "amount": 7970, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0116", "date": "2026-05-23", "content": "ワイズ", "amount": 867, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0117", "date": "2026-06-11", "content": "駐車場", "amount": 500, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0118", "date": "2026-06-11", "content": "駐車場", "amount": 500, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0119", "date": "2026-06-11", "content": "ガラスの森美術館", "amount": 3600, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0120", "date": "2026-06-11", "content": "駐車場", "amount": 600, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0121", "date": "2026-06-11", "content": "自然薯", "amount": 3916, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0122", "date": "2026-06-12", "content": "饅頭", "amount": 160, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0123", "date": "2026-06-12", "content": "ティラミスソフト", "amount": 600, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0124", "date": "2026-06-12", "content": "さつま揚げ", "amount": 400, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0125", "date": "2026-06-12", "content": "ジュース", "amount": 1300, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0126", "date": "2026-06-12", "content": "えび", "amount": 750, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0127", "date": "2026-06-12", "content": "狭山サービスエリア", "amount": 1110, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0128", "date": "2026-06-13", "content": "ベルーナドーム", "amount": 1700, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0129", "date": "2026-06-13", "content": "ベルーナドーム", "amount": 3000, "payer": "ゆづ", "type": "expense"}, {"id": "seed_0130", "date": "2026-06-13", "content": "ベルーナ駐車場", "amount": 3610, "payer": "ゆうや", "type": "expense"}, {"id": "seed_0131", "date": "2026-06-13", "content": "ガソリン", "amount": 3480, "payer": "ゆうや", "type": "expense"}];
+  let state = {
+    config: null,
+    transactions: [],
+    myName: null,
+    currentMonth: null,
+    currentYear: null,
+    viewTab: 'thisYear', // 'thisYear' | 'past'
+    editingId: null,
+    pendingType: 'expense',
+  };
+
+  // 共有データ: Cloudflare Pages Functions 経由でKVに保存(2人とも同じデータが見える)
+  async function loadShared(key, fallback){
+    try{
+      const res = await fetch('/api/kv?key=' + encodeURIComponent(key));
+      const data = await res.json();
+      return (data && data.value) ? JSON.parse(data.value) : fallback;
+    }catch(e){ console.error('load failed', e); return fallback; }
+  }
+  async function saveShared(key, value){
+    try{
+      await fetch('/api/kv', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key, value: JSON.stringify(value) })
+      });
+    }catch(e){ console.error('storage save failed', e); showToast('保存に失敗しました（通信エラー）'); }
+  }
+  // 個人データ: 端末のブラウザだけに保存(「自分の名前」の記憶用、同期は不要)
+  async function loadPersonal(key){
+    try{ return localStorage.getItem(key); }catch(e){ return null; }
+  }
+  async function savePersonal(key, value){
+    try{ localStorage.setItem(key, value); }catch(e){ console.error('local save failed', e); }
+  }
+
+  function uid(){ return 'tx_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+  function todayStr(){
+    const d = new Date();
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+  function monthOf(dateStr){ return dateStr.slice(0,7); }
+  function yearOf(dateStr){ return parseInt(dateStr.slice(0,4),10); }
+  function yen(n){ return '¥' + Number(n||0).toLocaleString('ja-JP'); }
+  function fmtMonthLabel(m){
+    const [y,mo] = m.split('-');
+    return y + '年' + parseInt(mo,10) + '月';
+  }
+  function fmtDayLabel(dateStr){
+    const d = new Date(dateStr + 'T00:00:00');
+    const w = ['日','月','火','水','木','金','土'][d.getDay()];
+    return (d.getMonth()+1) + '/' + d.getDate() + '(' + w + ')';
+  }
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(()=>t.classList.remove('show'), 2200);
+  }
+  function isDeposit(t){ return t.type === 'deposit'; }
+
+  function colorFor(name){
+    if(name === SEED_NAMES[0]) return 'var(--personA)';
+    if(name === SEED_NAMES[1]) return 'var(--personB)';
+    if(!state.config) return 'var(--personA)';
+    return name === state.config.names[0] ? 'var(--personA)' : 'var(--personB)';
+  }
+  function isDefaultConfig(names){
+    return names.length===2 && names[0]===FALLBACK_NAMES[0] && names[1]===FALLBACK_NAMES[1];
+  }
+
+  async function init(){
+    const [cfg, txs, my, seedApplied] = await Promise.all([
+      loadShared('config', null),
+      loadShared('transactions', []),
+      loadPersonal('myName'),
+      loadShared('seedApplied', false),
+    ]);
+    state.config = cfg && cfg.names && cfg.names.length===2 ? cfg : Object.assign({ names: SEED_NAMES.slice() }, JSON.parse(JSON.stringify(WALLET_DEFAULTS)));
+    let configChanged = !cfg;
+    Object.keys(WALLET_DEFAULTS).forEach(key => {
+      if(state.config[key] === undefined){
+        state.config[key] = (key === 'personalCash') ? Object.assign({}, WALLET_DEFAULTS.personalCash) : WALLET_DEFAULTS[key];
+        configChanged = true;
+      }
+    });
+    if(!cfg){ /* saved below together with other changes */ }
+    state.transactions = Array.isArray(txs) ? txs : [];
+
+    // 現在の残高が¥195,700になるよう起点金額を一度だけ補正
+    const baselineFixed = await loadShared('baselineFixV2', false);
+    if(!baselineFixed){
+      if(state.config.walletBaselineAmount === 97700){
+        state.config.walletBaselineAmount = 97761;
+        configChanged = true;
+      }
+      await saveShared('baselineFixV2', true);
+    }
+
+    if(!seedApplied){
+      const existingIds = new Set(state.transactions.map(t => t.id));
+      let addedAny = false;
+      SEED_TRANSACTIONS.forEach(t => {
+        if(!existingIds.has(t.id)){
+          state.transactions.push(Object.assign({}, t));
+          addedAny = true;
+        }
+      });
+      await saveShared('seedApplied', true);
+      if(addedAny){ await saveShared('transactions', state.transactions); }
+    }
+
+    const seedAppliedJuly1 = await loadShared('seedAppliedJuly1', false);
+    if(!seedAppliedJuly1){
+      const existingIds2 = new Set(state.transactions.map(t => t.id));
+      let addedAny2 = false;
+      SEED_TRANSACTIONS_JULY1.forEach(t => {
+        if(!existingIds2.has(t.id)){
+          state.transactions.push(Object.assign({}, t));
+          addedAny2 = true;
+        }
+      });
+      await saveShared('seedAppliedJuly1', true);
+      if(addedAny2){ await saveShared('transactions', state.transactions); }
+    }
+
+    // 名前がまだ初期値のままなら、実際の支払者名から自動で推定して直す
+    if(isDefaultConfig(state.config.names)){
+      const payerCounts = {};
+      state.transactions.forEach(t => { if(t.payer) payerCounts[t.payer] = (payerCounts[t.payer]||0) + 1; });
+      const distinct = Object.keys(payerCounts);
+      let newNames = null;
+      if(distinct.length === 2){
+        newNames = distinct.sort((a,b) => payerCounts[b]-payerCounts[a]);
+      }else if(distinct.length === 0){
+        newNames = SEED_NAMES.slice();
+      }
+      if(newNames){ state.config.names = newNames; configChanged = true; }
+    }
+    if(configChanged){ await saveShared('config', state.config); }
+
+    state.myName = (my && state.config.names.includes(my)) ? my : null;
+    const today = todayStr();
+    state.currentMonth = today.slice(0,7);
+    state.currentYear = yearOf(today);
+
+    renderShell();
+    if(!state.myName){
+      openWhoModal();
+    }
+  }
+
+  // ---------- wallet ledger ----------
+  function monthKeyAdd(mk, delta){
+    let [y,m] = mk.split('-').map(Number);
+    m += delta;
+    while(m > 12){ m -= 12; y += 1; }
+    while(m < 1){ m += 12; y -= 1; }
+    return y + '-' + String(m).padStart(2,'0');
+  }
+
+  function walletMonths(){
+    const baseMonth = state.config.walletBaselineDate.slice(0,7);
+    const todayM = todayStr().slice(0,7);
+    let months = [];
+    let mk = baseMonth;
+    // 安全のため最大600ヶ月(50年)でループ打ち切り
+    for(let i=0;i<600;i++){
+      months.push(mk);
+      if(mk === todayM) break;
+      mk = monthKeyAdd(mk, 1);
+    }
+    let running = state.config.walletBaselineAmount;
+    const rows = [];
+    months.forEach((m, idx) => {
+      const isFirst = idx === 0;
+      const start = isFirst ? state.config.walletBaselineAmount : running;
+      const autoDeposit = isFirst ? 0 : state.config.walletMonthlyTopup;
+      let manualDep = 0, expense = 0;
+      state.transactions.forEach(t => {
+        if(!t.date || monthOf(t.date) !== m) return;
+        const amt = Number(t.amount) || 0;
+        if(isDeposit(t)) manualDep += amt; else expense += amt;
+      });
+      const deposit = autoDeposit + manualDep;
+      const end = start + deposit - expense;
+      rows.push({ monthKey:m, start, deposit, expense, end });
+      running = end;
+    });
+    return rows;
+  }
+
+  function currentWalletBalance(){
+    const rows = walletMonths();
+    return rows.length ? rows[rows.length-1].end : state.config.walletBaselineAmount;
+  }
+
+  function walletRowFor(monthKey){
+    if(monthKey < state.config.walletBaselineDate.slice(0,7)) return null;
+    return walletMonths().find(r => r.monthKey === monthKey) || null;
+  }
+
+  function renderWallet(){
+    const balance = currentWalletBalance();
+    const thisMonthRow = walletRowFor(todayStr().slice(0,7));
+    const [nameA, nameB] = state.config.names;
+    const cash = state.config.personalCash || {};
+
+    document.getElementById('walletArea').innerHTML = `
+      <div class="wallet-card">
+        <div class="wallet-top">
+          <div>
+            <div class="wallet-label">財布の残高</div>
+            <div class="wallet-amount num">${yen(balance)}</div>
+          </div>
+          <button class="wallet-deposit-btn" id="walletDepositBtn">＋追加で入金</button>
+        </div>
+        ${thisMonthRow ? `
+        <div class="wallet-sub">
+          <div>今月の入金 <b class="num">+${yen(thisMonthRow.deposit)}</b></div>
+          <div>今月の支出 <b class="num">-${yen(thisMonthRow.expense)}</b></div>
+        </div>` : ''}
+      </div>
+      <div class="cash-chips">
+        <div class="cash-chip" data-name="${escapeHtml(nameA)}">
+          <span class="dot" style="background:${colorFor(nameA)}"></span>
+          <div class="cash-chip-info"><div class="cash-chip-name">${escapeHtml(nameA)}の手持ち</div><div class="cash-chip-amt num">${yen(cash[nameA]||0)}</div></div>
+          <span class="cash-chip-edit">編集</span>
+        </div>
+        <div class="cash-chip" data-name="${escapeHtml(nameB)}">
+          <span class="dot" style="background:${colorFor(nameB)}"></span>
+          <div class="cash-chip-info"><div class="cash-chip-name">${escapeHtml(nameB)}の手持ち</div><div class="cash-chip-amt num">${yen(cash[nameB]||0)}</div></div>
+          <span class="cash-chip-edit">編集</span>
+        </div>
+      </div>
+    `;
+    document.getElementById('walletDepositBtn').onclick = () => openTxModal(null, 'deposit');
+    document.querySelectorAll('.cash-chip').forEach(chip => {
+      chip.onclick = () => openPersonalCashModal(chip.getAttribute('data-name'));
+    });
+  }
+
+  function openPersonalCashModal(name){
+    state.editingCashName = name;
+    const cur = (state.config.personalCash && state.config.personalCash[name]) || 0;
+    document.getElementById('cashModalTitle').textContent = escapeHtml(name) + 'の手持ち残高';
+    document.getElementById('cashAmount').value = cur;
+    document.getElementById('cashModalBackdrop').classList.add('show');
+  }
+  document.getElementById('cashCancelBtn').onclick = () => closeModal('cashModalBackdrop');
+  document.getElementById('cashSaveBtn').onclick = async () => {
+    const num = Number(document.getElementById('cashAmount').value);
+    if(isNaN(num) || num < 0){ showToast('金額を正しく入力してください'); return; }
+    if(!state.config.personalCash) state.config.personalCash = {};
+    state.config.personalCash[state.editingCashName] = num;
+    await saveShared('config', state.config);
+    closeModal('cashModalBackdrop');
+    renderWallet();
+    showToast(state.editingCashName + 'の手持ち残高を更新しました');
+  };
+
+  // ---------- rendering shell ----------
+  function renderShell(){
+    const app = document.getElementById('app');
+    app.innerHTML = `
+      <div class="header">
+        <div class="header-row">
+          <div class="brand">
+            <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
+              <rect x="3" y="9" width="26" height="18" rx="5" fill="#2E2B26"/>
+              <rect x="3" y="9" width="26" height="6" rx="3" fill="#D6483A"/>
+              <circle cx="23" cy="20" r="2.4" fill="#F6F3EC"/>
+              <path d="M9 9 C9 5 12 3 16 3 C20 3 23 5 23 9" stroke="#2E2B26" stroke-width="2" fill="none"/>
+            </svg>
+            <div class="brand-title">ふたりのおさいふ</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="me-pill" id="mePill"></div>
+            <div class="settings-btn" id="settingsBtn" title="設定">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E2B26" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="walletArea"></div>
+      <div class="view-tabs">
+        <div class="view-tab" id="tabThisYear">今年（月別）</div>
+        <div class="view-tab" id="tabPast">過去（年別）</div>
+      </div>
+      <div id="thisYearPanel">
+        <div class="month-nav">
+          <button id="prevMonthBtn" aria-label="前の月">‹</button>
+          <div class="month-label display" id="monthLabel"></div>
+          <button id="nextMonthBtn" aria-label="次の月">›</button>
+        </div>
+        <div id="balanceArea"></div>
+        <div class="list-section" id="listArea"></div>
+      </div>
+      <div id="pastPanel" class="list-section" style="display:none;"></div>
+      <div class="fab"><button id="addBtn" aria-label="記録を追加">＋</button></div>
+    `;
+    document.getElementById('prevMonthBtn').onclick = () => changeMonth(-1);
+    document.getElementById('nextMonthBtn').onclick = () => changeMonth(1);
+    document.getElementById('addBtn').onclick = () => openTxModal();
+    document.getElementById('settingsBtn').onclick = () => openSettingsModal();
+    document.getElementById('mePill').onclick = () => openWhoModal();
+    document.getElementById('tabThisYear').onclick = () => { state.viewTab='thisYear'; renderDynamic(); };
+    document.getElementById('tabPast').onclick = () => { state.viewTab='past'; renderDynamic(); };
+    renderDynamic();
+  }
+
+  function renderDynamic(){
+    renderMePill();
+    renderWallet();
+    const isThisYear = state.viewTab === 'thisYear';
+    document.getElementById('tabThisYear').classList.toggle('active', isThisYear);
+    document.getElementById('tabPast').classList.toggle('active', !isThisYear);
+    document.getElementById('thisYearPanel').style.display = isThisYear ? '' : 'none';
+    document.getElementById('pastPanel').style.display = isThisYear ? 'none' : '';
+    if(isThisYear){
+      document.getElementById('monthLabel').textContent = fmtMonthLabel(state.currentMonth);
+      const [y,m] = state.currentMonth.split('-').map(Number);
+      document.getElementById('prevMonthBtn').disabled = (m === 1);
+      document.getElementById('nextMonthBtn').disabled = (m === 12);
+      renderBalance();
+      renderList();
+    }else{
+      renderPastYears();
+    }
+  }
+
+  function renderMePill(){
+    const el = document.getElementById('mePill');
+    if(!el) return;
+    if(state.myName){
+      el.innerHTML = '<span class="dot" style="background:'+colorFor(state.myName)+'"></span> <b>'+escapeHtml(state.myName)+'</b> として記録中';
+    }else{
+      el.innerHTML = '名前を選択';
+    }
+  }
+
+  function monthTxs(){
+    return state.transactions.filter(t => t.date && yearOf(t.date) === state.currentYear && monthOf(t.date) === state.currentMonth);
+  }
+
+  function renderBalance(){
+    const [nameA, nameB] = state.config.names;
+    const txs = monthTxs().filter(t => !isDeposit(t));
+    let totalA = 0, totalB = 0;
+    txs.forEach(t => {
+      if(t.payer === nameA) totalA += Number(t.amount)||0;
+      else if(t.payer === nameB) totalB += Number(t.amount)||0;
+    });
+    const total = totalA + totalB;
+    const pctA = total > 0 ? (totalA/total*100) : 50;
+    const pctB = total > 0 ? 100 - pctA : 50;
+
+    const row = walletRowFor(state.currentMonth);
+    const ledgerHtml = row ? `
+        <div class="ledger-box">
+          <div class="ledger-row"><span>開始残高</span><b class="num">${yen(row.start)}</b></div>
+          <div class="ledger-row"><span>入金</span><b class="num plus">+${yen(row.deposit)}</b></div>
+          <div class="ledger-row"><span>支出</span><b class="num minus">-${yen(row.expense)}</b></div>
+          <div class="ledger-row total"><span>終了残高</span><b class="num">${yen(row.end)}</b></div>
+        </div>` : '';
+
+    document.getElementById('balanceArea').innerHTML = `
+      <div class="balance-card">
+        <div class="balance-title">今月の支出内訳（合計 <span class="num">${yen(total)}</span>）</div>
+        <div class="bar-track">
+          <div class="bar-seg" style="width:${pctA}%; background:${colorFor(nameA)};"></div>
+          <div class="bar-seg" style="width:${pctB}%; background:${colorFor(nameB)};"></div>
+        </div>
+        <div class="bar-legend">
+          <div class="legend-item">
+            <div class="legend-name"><span class="dot" style="background:${colorFor(nameA)}"></span>${escapeHtml(nameA)}</div>
+            <div class="legend-amt num">${yen(totalA)}</div>
+          </div>
+          <div class="legend-item right">
+            <div class="legend-name">${escapeHtml(nameB)}<span class="dot" style="background:${colorFor(nameB)}"></span></div>
+            <div class="legend-amt num">${yen(totalB)}</div>
+          </div>
+        </div>
+        ${ledgerHtml}
+      </div>
+    `;
+  }
+
+  function renderList(){
+    const txs = monthTxs().slice().sort((a,b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+    const area = document.getElementById('listArea');
+    if(txs.length === 0){
+      area.innerHTML = `
+        <div class="empty-state">
+          <div class="em-icon">🪙</div>
+          <p>今月の記録はまだありません。<br>右下の「＋」から追加してみましょう。</p>
+        </div>`;
+      return;
+    }
+    const groups = {};
+    txs.forEach(t => { (groups[t.date] = groups[t.date] || []).push(t); });
+    const dates = Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+    let html = '<div class="list-section-title">記録一覧</div>';
+    dates.forEach(date => {
+      html += '<div class="day-group"><div class="day-label">'+fmtDayLabel(date)+'</div>';
+      groups[date].forEach(t => {
+        const dep = isDeposit(t);
+        html += `
+          <div class="tx-card" data-id="${t.id}">
+            <div class="tx-tag" style="background:${colorFor(t.payer)}"></div>
+            <div class="tx-main">
+              <div class="tx-content">${dep ? '<span class="tx-badge">入金</span>' : ''}${escapeHtml(t.content || (dep?'入金':'（内容なし）'))}</div>
+              <div class="tx-payer">${escapeHtml(t.payer)}が${dep?'入金':'支払い'}</div>
+            </div>
+            <div class="tx-amount num ${dep?'is-deposit':''}">${dep?'+':''}${yen(t.amount)}</div>
+          </div>`;
+      });
+      html += '</div>';
+    });
+    area.innerHTML = html;
+    area.querySelectorAll('.tx-card').forEach(card => {
+      card.onclick = () => openTxModal(card.getAttribute('data-id'));
+    });
+  }
+
+  function renderPastYears(){
+    const [nameA, nameB] = state.config.names;
+    const byYear = {};
+    state.transactions.forEach(t => {
+      if(!t.date || isDeposit(t)) return;
+      const y = yearOf(t.date);
+      if(y >= state.currentYear) return;
+      const mKey = monthOf(t.date);
+      const amt = Number(t.amount)||0;
+      byYear[y] = byYear[y] || {a:0,b:0, months:{}};
+      byYear[y].months[mKey] = byYear[y].months[mKey] || {a:0,b:0};
+      if(t.payer === nameA){ byYear[y].a += amt; byYear[y].months[mKey].a += amt; }
+      else if(t.payer === nameB){ byYear[y].b += amt; byYear[y].months[mKey].b += amt; }
+    });
+    const years = Object.keys(byYear).map(Number).sort((a,b)=>b-a);
+    const panel = document.getElementById('pastPanel');
+    if(years.length === 0){
+      panel.innerHTML = `
+        <div class="empty-state">
+          <div class="em-icon">📚</div>
+          <p>${state.currentYear}年より前の記録はまだありません。<br>設定画面からCSVで一括インポートできます。</p>
+        </div>`;
+      return;
+    }
+    let html = '<div class="list-section-title">年別の合計</div>';
+    years.forEach(y => {
+      const d = byYear[y];
+      const total = d.a + d.b;
+      const monthKeys = Object.keys(d.months).sort((a,b)=>b.localeCompare(a));
+      const monthRows = monthKeys.map(mk => {
+        const md = d.months[mk];
+        return `<div class="month-row">
+            <div class="month-row-label">${fmtMonthLabel(mk)}</div>
+            <div class="month-row-amt num">${yen(md.a+md.b)}</div>
+          </div>`;
+      }).join('');
+      html += `
+        <div class="year-card">
+          <div class="year-card-top">
+            <div class="year-card-title display">${y}年</div>
+            <div class="year-card-total num">${yen(total)}</div>
+          </div>
+          <div class="year-card-legend">
+            <div><span class="dot" style="background:${colorFor(nameA)}"></span>${escapeHtml(nameA)} <b class="num">${yen(d.a)}</b></div>
+            <div><span class="dot" style="background:${colorFor(nameB)}"></span>${escapeHtml(nameB)} <b class="num">${yen(d.b)}</b></div>
+          </div>
+          <div class="year-months" id="ym_${y}" style="display:none;">${monthRows}</div>
+          <div class="year-toggle-hint" data-year="${y}">月ごとの内訳を見る ▾</div>
+        </div>`;
+    });
+    panel.innerHTML = html;
+    panel.querySelectorAll('.year-toggle-hint').forEach(el => {
+      el.onclick = () => {
+        const y = el.getAttribute('data-year');
+        const box = document.getElementById('ym_' + y);
+        const willOpen = box.style.display === 'none';
+        box.style.display = willOpen ? 'block' : 'none';
+        el.textContent = willOpen ? '閉じる ▴' : '月ごとの内訳を見る ▾';
+      };
+    });
+  }
+
+  function changeMonth(delta){
+    const [y,m] = state.currentMonth.split('-').map(Number);
+    const nm = m + delta;
+    if(nm < 1 || nm > 12) return;
+    state.currentMonth = y+'-'+String(nm).padStart(2,'0');
+    renderDynamic();
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // ---------- who modal ----------
+  function openWhoModal(){
+    const grid = document.getElementById('whoGrid');
+    grid.innerHTML = state.config.names.map(n => `
+      <div class="who-card" data-name="${escapeHtml(n)}">
+        <span class="dot" style="background:${colorFor(n)}"></span> ${escapeHtml(n)}
+      </div>`).join('');
+    grid.querySelectorAll('.who-card').forEach(c => {
+      c.onclick = async () => {
+        state.myName = c.getAttribute('data-name');
+        await savePersonal('myName', state.myName);
+        closeModal('whoModalBackdrop');
+        renderMePill();
+        showToast(state.myName + ' として記録します');
+      };
+    });
+    document.getElementById('whoModalBackdrop').classList.add('show');
+  }
+
+  // ---------- tx modal ----------
+  function openTxModal(id, forceType){
+    state.editingId = id || null;
+    const tx = id ? state.transactions.find(t => t.id === id) : null;
+    const type = tx ? (tx.type === 'deposit' ? 'deposit' : 'expense') : (forceType || 'expense');
+    state.pendingType = type;
+
+    document.getElementById('txModalTitle').textContent = tx ? '記録を編集' : (type==='deposit' ? '入金を記録' : '支出を記録');
+    document.getElementById('txContent').value = tx ? (tx.content||'') : '';
+    document.getElementById('txAmount').value = tx ? tx.amount : '';
+    document.getElementById('txDate').value = tx ? tx.date : todayStr();
+
+    const typeToggle = document.getElementById('typeToggle');
+    function applyTypeUI(t){
+      typeToggle.querySelectorAll('.type-opt').forEach(o => {
+        o.classList.toggle('active', o.getAttribute('data-type') === t);
+      });
+      document.getElementById('contentLabel').textContent = t==='deposit' ? '内容（任意）' : '内容';
+      document.getElementById('payerLabel').textContent = t==='deposit' ? '入金した人' : '支払った人';
+      document.getElementById('txContent').placeholder = t==='deposit' ? '例）給料から' : '例）スーパーで食材';
+    }
+    applyTypeUI(type);
+    typeToggle.querySelectorAll('.type-opt').forEach(o => {
+      o.onclick = () => { state.pendingType = o.getAttribute('data-type'); applyTypeUI(state.pendingType); };
+    });
+
+    const [nameA, nameB] = state.config.names;
+    const defaultPayer = tx ? tx.payer : (state.myName || nameA);
+    const toggle = document.getElementById('payerToggle');
+    toggle.innerHTML = [nameA, nameB].map(n => `
+      <div class="payer-opt ${n===defaultPayer?'active':''}" data-name="${escapeHtml(n)}">
+        <span class="dot" style="background:${n===defaultPayer ? '#fff' : colorFor(n)}"></span>${escapeHtml(n)}
+      </div>`).join('');
+    toggle.querySelectorAll('.payer-opt').forEach(opt => {
+      opt.onclick = () => {
+        toggle.querySelectorAll('.payer-opt').forEach(o=>{
+          o.classList.remove('active');
+          o.querySelector('.dot').style.background = colorFor(o.getAttribute('data-name'));
+        });
+        opt.classList.add('active');
+        opt.querySelector('.dot').style.background = '#fff';
+      };
+    });
+
+    const delRow = document.getElementById('txDeleteRow');
+    delRow.style.display = tx ? 'flex' : 'none';
+    document.getElementById('txDeleteBtn').textContent = 'この記録を削除';
+    deleteArmed = false;
+    document.getElementById('txDeleteBtn').onclick = () => handleDelete(tx ? tx.id : null);
+
+    document.getElementById('txCancelBtn').onclick = () => closeModal('txModalBackdrop');
+    document.getElementById('txSaveBtn').onclick = handleSaveTx;
+    document.getElementById('txModalBackdrop').classList.add('show');
+  }
+
+  let deleteArmed = false;
+  function handleDelete(id){
+    if(!id) return;
+    const btn = document.getElementById('txDeleteBtn');
+    if(!deleteArmed){
+      deleteArmed = true;
+      btn.textContent = '本当に削除しますか？（もう一度タップ）';
+      setTimeout(()=>{ deleteArmed = false; btn.textContent = 'この記録を削除'; }, 3000);
+      return;
+    }
+    state.transactions = state.transactions.filter(t => t.id !== id);
+    saveShared('transactions', state.transactions);
+    deleteArmed = false;
+    closeModal('txModalBackdrop');
+    renderDynamic();
+    showToast('削除しました');
+  }
+
+  async function handleSaveTx(){
+    const content = document.getElementById('txContent').value.trim();
+    const amount = Number(document.getElementById('txAmount').value);
+    const date = document.getElementById('txDate').value || todayStr();
+    const activeOpt = document.querySelector('#payerToggle .payer-opt.active');
+    const payer = activeOpt ? activeOpt.getAttribute('data-name') : state.config.names[0];
+    const type = state.pendingType === 'deposit' ? 'deposit' : 'expense';
+
+    if(!amount || amount <= 0){
+      showToast('金額を入力してください');
+      return;
+    }
+    if(state.editingId){
+      const tx = state.transactions.find(t => t.id === state.editingId);
+      if(tx){ tx.content = content; tx.amount = amount; tx.date = date; tx.payer = payer; tx.type = type; }
+    }else{
+      state.transactions.push({ id: uid(), content, amount, date, payer, type });
+    }
+    await saveShared('transactions', state.transactions);
+    if(yearOf(date) === state.currentYear){
+      state.currentMonth = monthOf(date);
+      state.viewTab = 'thisYear';
+    }
+    closeModal('txModalBackdrop');
+    renderDynamic();
+    showToast('保存しました');
+  }
+
+  // ---------- settings modal ----------
+  function openSettingsModal(){
+    document.getElementById('nameA').value = state.config.names[0];
+    document.getElementById('nameB').value = state.config.names[1];
+    document.getElementById('importText').value = '';
+    document.getElementById('walletBaseline').value = state.config.walletBaselineAmount;
+    document.getElementById('walletTopup').value = state.config.walletMonthlyTopup;
+    document.getElementById('settingsCancelBtn').onclick = () => closeModal('settingsModalBackdrop');
+    document.getElementById('settingsSaveBtn').onclick = async () => {
+      const a = document.getElementById('nameA').value.trim() || FALLBACK_NAMES[0];
+      const b = document.getElementById('nameB').value.trim() || FALLBACK_NAMES[1];
+      if(a === b){ showToast('名前を別々にしてください'); return; }
+      const oldNames = state.config.names;
+      state.config.names = [a,b];
+      state.transactions.forEach(t => {
+        if(t.payer === oldNames[0]) t.payer = a;
+        else if(t.payer === oldNames[1]) t.payer = b;
+      });
+      if(state.myName === oldNames[0]) state.myName = a;
+      else if(state.myName === oldNames[1]) state.myName = b;
+      if(state.config.personalCash){
+        const pc = state.config.personalCash;
+        if(oldNames[0] !== a && pc[oldNames[0]] !== undefined){ pc[a] = pc[oldNames[0]]; delete pc[oldNames[0]]; }
+        if(oldNames[1] !== b && pc[oldNames[1]] !== undefined){ pc[b] = pc[oldNames[1]]; delete pc[oldNames[1]]; }
+      }
+      await saveShared('config', state.config);
+      await saveShared('transactions', state.transactions);
+      await savePersonal('myName', state.myName || '');
+      closeModal('settingsModalBackdrop');
+      renderDynamic();
+      showToast('設定を保存しました');
+    };
+    document.getElementById('walletSettingsSaveBtn').onclick = async () => {
+      const baseline = Number(document.getElementById('walletBaseline').value);
+      const topup = Number(document.getElementById('walletTopup').value);
+      if(isNaN(baseline) || isNaN(topup)){ showToast('数字を入力してください'); return; }
+      state.config.walletBaselineAmount = baseline;
+      state.config.walletMonthlyTopup = topup;
+      await saveShared('config', state.config);
+      closeModal('settingsModalBackdrop');
+      renderDynamic();
+      showToast('台帳設定を保存しました');
+    };
+    document.getElementById('exportBtn').onclick = handleExportCSV;
+    document.getElementById('importBtn').onclick = handleImport;
+    document.getElementById('settingsModalBackdrop').classList.add('show');
+  }
+
+  function parseDateFlexible(s){
+    s = s.trim();
+    if(!s) return null;
+    let m = s.match(/^(\d{4})[\/\-年](\d{1,2})[\/\-月](\d{1,2})/);
+    if(m){
+      const y = m[1], mo = String(parseInt(m[2],10)).padStart(2,'0'), da = String(parseInt(m[3],10)).padStart(2,'0');
+      return y+'-'+mo+'-'+da;
+    }
+    const d = new Date(s);
+    if(!isNaN(d)) return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    return null;
+  }
+
+  function handleExportCSV(){
+    const rows = state.transactions.slice().sort((a,b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+    if(rows.length === 0){ showToast('まだ記録がありません'); return; }
+    const escapeCsv = (s) => {
+      const str = String(s == null ? '' : s);
+      return /[",\n]/.test(str) ? '"' + str.replace(/"/g,'""') + '"' : str;
+    };
+    let csv = '日付,内容,金額,支払った人,種類\n';
+    rows.forEach(t => {
+      csv += [t.date, escapeCsv(t.content), t.amount, t.payer, (t.type==='deposit'?'入金':'支出')].join(',') + '\n';
+    });
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'futari-osaifu-backup-' + todayStr() + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast(rows.length + '件をダウンロードしました');
+  }
+
+  async function handleImport(){
+    const raw = document.getElementById('importText').value;
+    if(!raw.trim()){ showToast('貼り付ける内容がありません'); return; }
+    const lines = raw.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+    const [nameA, nameB] = state.config.names;
+    let added = 0, skipped = 0;
+    lines.forEach(line => {
+      const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g,''));
+      if(cols.length < 3) { skipped++; return; }
+      const date = parseDateFlexible(cols[0]);
+      const content = cols[1] || '';
+      const amount = Number(String(cols[2]).replace(/[¥,円\s]/g,''));
+      let payer = (cols[3]||'').trim();
+      if(!date || !amount || amount <= 0){ skipped++; return; }
+      if(payer !== nameA && payer !== nameB){
+        payer = nameA; // 不明な場合は1人目に割り当て、後で編集してもらう
+      }
+      state.transactions.push({ id: uid(), content, amount, date, payer, type:'expense' });
+      added++;
+    });
+    if(added > 0){
+      await saveShared('transactions', state.transactions);
+      renderDynamic();
+    }
+    document.getElementById('importText').value = '';
+    showToast(added + '件取り込みました' + (skipped ? '（' + skipped + '件はスキップ）' : ''));
+  }
+
+  function closeModal(id){
+    document.getElementById(id).classList.remove('show');
+  }
+  document.querySelectorAll('.modal-backdrop').forEach(bd => {
+    bd.addEventListener('click', (e) => { if(e.target === bd) bd.classList.remove('show'); });
+  });
+
+  init();
+})();
+</script>
+</body>
+</html>
