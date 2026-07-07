@@ -1,4 +1,4 @@
-import { isAllowedEmail, verifyTOTP, signToken } from "./_shared.js";
+import { isAllowedEmail, signToken } from "./_shared.js";
 
 export default async (req, context) => {
   if (req.method !== "POST") {
@@ -11,13 +11,9 @@ export default async (req, context) => {
     return json({ error: "invalid JSON body" }, 400);
   }
   const email = String(body.email || "").trim().toLowerCase();
-  const code = String(body.code || "").trim();
 
   if (!isAllowedEmail(email)) {
     return json({ error: "このメールアドレスは登録されていません" }, 403);
-  }
-  if (!verifyTOTP(email, code)) {
-    return json({ error: "認証コードが正しくありません" }, 401);
   }
 
   const token = signToken({
