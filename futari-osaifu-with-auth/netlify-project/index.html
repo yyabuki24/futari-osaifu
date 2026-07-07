@@ -1240,35 +1240,30 @@
     gate.innerHTML = `
       <div class="login-card">
         <div class="login-title display">ふたりのおさいふ</div>
-        <div class="login-sub">登録された2人だけがログインできます。<br>認証アプリの6桁コードが必要です。</div>
+        <div class="login-sub">登録された2人だけがログインできます。</div>
         ${errorMsg ? '<div class="login-error">' + escapeHtml(errorMsg) + '</div>' : ''}
         <div class="field">
           <label>メールアドレス</label>
           <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
         </div>
-        <div class="field">
-          <label>認証アプリの6桁コード</label>
-          <input type="text" id="loginCode" inputmode="numeric" maxlength="6" placeholder="123456" autocomplete="one-time-code">
-        </div>
         <button class="btn btn-primary" id="loginSubmitBtn" style="width:100%;">ログイン</button>
       </div>
     `;
     document.getElementById('loginSubmitBtn').onclick = handleLoginSubmit;
-    document.getElementById('loginCode').addEventListener('keydown', (e) => { if(e.key === 'Enter') handleLoginSubmit(); });
+    document.getElementById('loginEmail').addEventListener('keydown', (e) => { if(e.key === 'Enter') handleLoginSubmit(); });
     gate.classList.add('show');
   }
 
   async function handleLoginSubmit(){
     const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-    const code = document.getElementById('loginCode').value.trim();
     const btn = document.getElementById('loginSubmitBtn');
-    if(!email || !code){ showLoginGate('メールアドレスとコードの両方を入力してください'); return; }
+    if(!email){ showLoginGate('メールアドレスを入力してください'); return; }
     btn.disabled = true; btn.textContent = '確認中…';
     try{
       const res = await fetch('/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code })
+        body: JSON.stringify({ email })
       });
       const data = await res.json();
       if(res.ok && data.token){
